@@ -4,15 +4,15 @@
 
 #include "HID-Project.h"
 
-using std::uint8_t;
+// using std::uint8_t;
 
 enum
 {
-  ledBuiltinPin = LED_BUILTIN,
-  taskStackSize = 10000,
+  // ledBuiltinPin = LED_BUILTIN,
+  // taskStackSize = 10000,
 };
 
-Encoder &encoder = Encoder::getInstance();
+// Encoder &encoder = Encoder::getInstance();
 // HeartbeatLed hbLed = HeartbeatLed(ledBuiltinPin);
 
 // TaskHandle_t BleTaskHandle;
@@ -37,10 +37,12 @@ void setup()
 {
   Serial.begin(115200);
 
-  encoder.Init();
+  // encoder.Init();
   // bluetooth.Init(&hbLed);
 
   // xTaskCreate(BluetoothTask, "BLE Task", taskStackSize, NULL, 1, &BleTaskHandle);
+
+  pinMode(2, INPUT_PULLUP);
 
   BootKeyboard.begin();
   BootKeyboard.releaseAll();
@@ -48,26 +50,40 @@ void setup()
   Consumer.begin();
 }
 
+static bool prevPressed = false;
+
 void loop()
 {
-  encoder.Run();
-  delay(50);
+  delay(200);
 
-  // This is dumb, no velocity or momentum, just one click = 1 volume
-  uint8_t position = encoder.GetPosition();
-  encoder.SetPosition(0);
-  if(position > 0)
+  bool pressed = !digitalRead(2);
+
+  if(pressed && !prevPressed)
   {
-    for(; position > 0; position--)
-    {
-      Consumer.write(MEDIA_VOLUME_UP)
-    }
+    Serial.println("Pressed!\n");
+    Consumer.write(MEDIA_VOLUME_MUTE);
   }
-  else
-  {
-    for(; position < 0; position++)
-    {
-      Consumer.write(MEDIA_VOLUME_DOWN)
-    }
-  }
+
+  prevPressed = pressed;
+
+  // encoder.Run();
+  // delay(50);
+
+  // // This is dumb, no velocity or momentum, just one click = 1 volume
+  // uint8_t position = encoder.GetPosition();
+  // encoder.SetPosition(0);
+  // if(position > 0)
+  // {
+  //   for(; position > 0; position--)
+  //   {
+  //     Consumer.write(MEDIA_VOLUME_UP)
+  //   }
+  // }
+  // else
+  // {
+  //   for(; position < 0; position++)
+  //   {
+  //     Consumer.write(MEDIA_VOLUME_DOWN)
+  //   }
+  // }
 }
