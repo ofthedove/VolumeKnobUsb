@@ -1,32 +1,36 @@
-// #ifndef ENCODER_H
-// #define ENCODER_H
+#ifndef ENCODER_H
+#define ENCODER_H
 
-// #include <cstdint>
+#ifdef AVR
+#include <stdint.h>
+#else
+#include <cstdint>
 
-// using std::uint8_t;
+using std::uint8_t;
+#endif
 
-// class Encoder
-// {
-// public:
-//     static Encoder &getInstance();
+class Encoder
+{
+public:
+    static Encoder &getInstance();
 
-//     void Init();
-//     void Run();
+    void Init();
+    void Run();
 
-//     uint8_t GetPosition();
-//     void SetPosition(uint8_t position);
+    uint8_t GetPosition();
+    void SetPosition(uint8_t position);
 
-//     bool GetButton();
-//     void SetButton(bool button);
+    bool GetButton();
+    void SetButton(bool button);
 
-// private:
-//     Encoder() {}
+private:
+    Encoder() {}
 
-//     bool initialized = false;
+    bool initialized = false;
 
-// public:
-//     Encoder(Encoder const &) = delete;
-//     void operator=(Encoder const &) = delete;
-// };
+public:
+    Encoder(Encoder const &) = delete;
+    void operator=(Encoder const &) = delete;
+};
 
-// #endif
+#endif
