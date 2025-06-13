@@ -18,7 +18,7 @@ static const short int EncoderArray[4][4] =
      {0, -1, 1, 0}};
 
 static volatile uint8_t encoderPreviousValue = 0;
-static uint8_t encoderPosition = 0;
+static int8_t encoderPosition = 0;
 
 static volatile bool buttonToggleValue = false;
 static volatile unsigned long buttonToggleOldMillis;
@@ -94,7 +94,7 @@ void Encoder::Run()
     }
 }
 
-uint8_t Encoder::GetPosition()
+int8_t Encoder::GetPosition()
 {
     return encoderPosition;
 }

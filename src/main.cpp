@@ -11,44 +11,23 @@ using std::uint8_t;
 enum
 {
   // ledBuiltinPin = LED_BUILTIN,
-  // taskStackSize = 10000,
+  StepsPerVolumeCommand = 4,
 };
 
 Encoder &encoder = Encoder::getInstance();
 // HeartbeatLed hbLed = HeartbeatLed(ledBuiltinPin);
 
-// TaskHandle_t BleTaskHandle;
-
-// void BluetoothTask(void *parameter)
-// {
-//   (void)parameter;
-
-//   while (true)
-//   {
-//     delay(200);
-
-//     bool button = encoder.GetButton();
-//     bluetooth.SetButton(button);
-
-//     uint8_t position = encoder.GetPosition();
-//     bluetooth.SetPosition(position);
-//   }
-// }
+static int pendingRotation;
+static bool prevButton;
 
 void setup()
 {
   Serial.begin(115200);
 
   encoder.Init();
-  // bluetooth.Init(&hbLed);
-
-  // xTaskCreate(BluetoothTask, "BLE Task", taskStackSize, NULL, 1, &BleTaskHandle);
-
-  pinMode(2, INPUT_PULLUP);
 
   BootKeyboard.begin();
   BootKeyboard.releaseAll();
-
   Consumer.begin();
 }
 
@@ -67,7 +46,20 @@ void loop()
   // prevPressed = pressed;
 
   encoder.Run();
-  delay(50);
+
+  pendingRotation += encoder.GetPosition();
+  encoder.SetPosition(0);
+
+  if(pendingRotation >= StepsPerVolumeCommand)
+  {
+    Consumer.write(MEDIA_VOLUME_UP);
+    pendingRotation -= StepsPerVolumeCommand;
+  }
+  else if(pendingRotation <= (0 - StepsPerVolumeCommand))
+  {
+    Consumer.write(MEDIA_VOLUME_DOWN);
+    pendingRotation += StepsPerVolumeCommand;
+  }
 
   // Serial.print(digitalRead(2));
   // Serial.print("   ");
@@ -76,25 +68,14 @@ void loop()
   // Serial.print(digitalRead(7));
   // Serial.println();
 
-  // // This is dumb, no velocity or momentum, just one click = 1 volume
-  uint8_t _position = encoder.GetPosition();
-  int8_t position = *(int8_t *)&_position;
-  encoder.SetPosition(0);
+  // This is disabled b/c my encoder is broken, and somehow the button is tied to one of the encoder pins?
 
-  Serial.println(position);
+  // bool button = encoder.GetButton();
+  // if(button != prevButton)
+  // {
+  //   Consumer.write(MEDIA_VOLUME_MUTE);
+  //   prevButton = button;
+  // }
 
-  if(position > 0)
-  {
-    for(; position > 0; position--)
-    {
-      Consumer.write(MEDIA_VOLUME_UP);
-    }
-  }
-  else
-  {
-    for(; position < 0; position++)
-    {
-      Consumer.write(MEDIA_VOLUME_DOWN);
-    }
-  }
+  delay(50);
 }

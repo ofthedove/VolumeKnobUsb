@@ -6,18 +6,19 @@
 #else
 #include <cstdint>
 
-using std::uint8_t;
+using std::int8_t;
 #endif
 
 class Encoder
 {
 public:
+    // I made this a singleton b/c of the ISRs, but b/c it's Arduino, it doesn't have to be
     static Encoder &getInstance();
 
     void Init();
     void Run();
 
-    uint8_t GetPosition();
+    int8_t GetPosition();
     void SetPosition(uint8_t position);
 
     bool GetButton();
